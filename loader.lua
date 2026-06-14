@@ -35,7 +35,7 @@ local Window = Fluent:CreateWindow({
     SubTitle = "\85\110\105\118\101\114\115\97\108\32\71\97\109\101\32\76\111\97\100\101\114",
     TabWidth = 140,
     Size = UDim2.fromOffset(450, 260),
-    Acrylic = true,
+    Acrylic = false,
     Theme = "\68\97\114\107",
     MinimizeKey = Enum.KeyCode.End
 })
@@ -81,7 +81,7 @@ Tab:AddButton({
                         local targetUrl = urls[selectedGame]
                         if targetUrl then
                             local success, err = pcall(function()
-                                loadstring(game:HttpGet(targetUrl))()
+                                loadstring(game:HttpGet(targetUrl .. "\63\116\61" .. tostring(os.time())))()
                             end)
                             if not success then
                                 warn("\85\110\105\118\101\114\115\97\108\32\83\117\110\32\72\117\98\58\32\70\97\105\108\101\100\32\116\111\32\101\120\101\99\117\116\101\32\115\99\114\105\112\116\32\45\32" .. tostring(err))
