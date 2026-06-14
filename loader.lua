@@ -1,6 +1,3 @@
-
-
-
 local expectedToken = "\53\98\56\50\56\55\100\51\100\102\97\53\51\57\99\51\54\50\57\101\52\54\97\55\56\50\98\99\102\50\101\55"
 if _G.UniversalSunHubLoaderToken ~= expectedToken then
     local player = game:GetService("\80\108\97\121\101\114\115").LocalPlayer
