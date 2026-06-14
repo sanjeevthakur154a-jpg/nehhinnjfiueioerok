@@ -1,103 +1,71 @@
+--[[
+    ================================================================
+    [ UNIVERSAL SUN HUB - SIMPLE LUA OBFUSCATOR ]
+    A lightweight, pure-Lua obfuscator designed to run on any standard 
+    Lua environment. It secures string literals using byte-escapes 
+    and minifies code structure to make it harder to read.
+    ================================================================
+]]
 
+local Obfuscator = {}
 
-
-local expectedToken = "\53\98\56\50\56\55\100\51\100\102\97\53\51\57\99\51\54\50\57\101\52\54\97\55\56\50\98\99\102\50\101\55"
-if _G.UniversalSunHubLoaderToken ~= expectedToken then
-    local player = game:GetService("\80\108\97\121\101\114\115").LocalPlayer
-    if player then
-        player:Kick("\n\240\159\155\161\239\184\143\32\85\110\97\117\116\104\111\114\105\122\101\100\32\69\120\101\99\117\116\105\111\110\32\240\159\155\161\239\184\143\n\n\80\108\101\97\115\101\32\117\115\101\32\116\104\101\32\111\102\102\105\99\105\97\108\32\75\101\121\32\83\121\115\116\101\109\32\116\111\32\114\117\110\32\85\110\105\118\101\114\115\97\108\32\83\117\110\32\72\117\98\46")
+-- Helper to convert a string into a byte-escaped string format
+local function encryptString(str)
+    local escaped = {}
+    for i = 1, #str do
+        table.insert(escaped, "\\" .. string.byte(str, i))
     end
+    return '"' .. table.concat(escaped) .. '"'
+end
+
+-- Simple obfuscation function
+function Obfuscator.obfuscate(code)
+    -- 1. Strip single line comments (except URLs or HTTP requests)
+    -- We do a basic replacement of comments that don't look like URLs
+    code = code:gsub("%-%-%s-[^\n]*", function(comment)
+        if comment:find("http") or comment:find("://") then
+            return comment -- Keep comments containing links to avoid breaking HttpGet
+        end
+        return ""
+    end)
+
+    -- 2. Convert string literals to byte-escaped format
+    -- Matches both double-quoted and single-quoted strings
+    code = code:gsub('"(.-)"', function(str)
+        return encryptString(str)
+    end)
+    code = code:gsub("'(.-)'", function(str)
+        return encryptString(str)
+    end)
+
+    -- 3. Minify spacing (remove duplicate newlines and excessive spaces)
+    code = code:gsub("\r", "")
+    code = code:gsub("\n%s*\n", "\n")
+    
+    return code
+end
+
+-- Main runner
+local inputPath = "C:\\Users\\Sanjeev\\Documents\\roblox\\key system\\key.lua"
+local outputPath = "C:\\Users\\Sanjeev\\Documents\\roblox\\key system\\key_obfuscated.lua"
+
+local file = io.open(inputPath, "r")
+if not file then
+    print("Error: Could not open input file key.lua")
     return
 end
-_G.UniversalSunHubLoaderToken = nil
 
+local content = file:read("*all")
+file:close()
 
-local Fluent = loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\103\105\116\104\117\98\46\99\111\109\47\100\97\119\105\100\45\115\99\114\105\112\116\115\47\70\108\117\101\110\116\47\114\101\108\101\97\115\101\115\47\108\97\116\101\115\116\47\100\111\119\110\108\111\97\100\47\109\97\105\110\46\108\117\97"))()
+print("Obfuscating key.lua...")
+local obfuscatedContent = Obfuscator.obfuscate(content)
 
-
-local defaultGame = "\66\108\111\120\32\70\114\117\105\116\115"
-local pId = game.PlaceId
-local gId = game.GameId
-
-if pId == 131346454575416 then
-    defaultGame = "\77\105\110\105\32\87\97\114"
-elseif pId == 14339696091 then
-    defaultGame = "\85\108\116\114\97\32\85\110\102\97\105\114"
-elseif pId == 97598239454123 or pId == 133438856880402 or pId == 10200395747 or pId == -10200395747 then
-    defaultGame = "\71\114\111\119\32\65\32\71\97\114\100\101\110\32\50"
-elseif pId == 2753915549 or pId == 4442272183 or gId == 2753915549 then
-    defaultGame = "\66\108\111\120\32\70\114\117\105\116\115"
+local outFile = io.open(outputPath, "w")
+if outFile then
+    outFile:write(obfuscatedContent)
+    outFile:close()
+    print("Successfully generated obfuscated script: key_obfuscated.lua")
+else
+    print("Error: Could not write obfuscated file.")
 end
-
-
-local Window = Fluent:CreateWindow({
-    Title = "\85\78\73\86\69\82\83\65\76\32\83\85\78\32\72\85\66",
-    SubTitle = "\85\110\105\118\101\114\115\97\108\32\71\97\109\101\32\76\111\97\100\101\114",
-    TabWidth = 140,
-    Size = UDim2.fromOffset(450, 260),
-    Acrylic = true,
-    Theme = "\68\97\114\107",
-    MinimizeKey = Enum.KeyCode.End
-})
-
-
-local Tab = Window:AddTab({ Title = "\76\111\97\100\101\114", Icon = "\112\108\97\121" })
-
-
-local selectedGame = defaultGame
-local Dropdown = Tab:AddDropdown("\71\97\109\101\83\101\108\101\99\116", {
-    Title = "\83\101\108\101\99\116\32\71\97\109\101",
-    Values = {"\66\108\111\120\32\70\114\117\105\116\115", "\71\114\111\119\32\65\32\71\97\114\100\101\110\32\50", "\77\105\110\105\32\87\97\114", "\85\108\116\114\97\32\85\110\102\97\105\114"},
-    Default = defaultGame,
-    Callback = function(Value)
-        selectedGame = Value
-    end
-})
-
-
-Tab:AddButton({
-    Title = "\69\120\101\99\117\116\101\32\83\99\114\105\112\116",
-    Description = "\76\111\97\100\115\32\97\110\100\32\114\117\110\115\32\116\104\101\32\115\101\108\101\99\116\101\100\32\103\97\109\101\32\104\117\98",
-    Callback = function()
-        Window:Dialog({
-            Title = "\67\111\110\102\105\114\109\32\69\120\101\99\117\116\105\111\110",
-            Content = "\65\114\101\32\121\111\117\32\115\117\114\101\32\121\111\117\32\119\97\110\116\32\116\111\32\101\120\101\99\117\116\101\32\116\104\101\32\115\99\114\105\112\116\32\102\111\114\32" .. selectedGame .. "\63\32\84\104\105\115\32\119\105\108\108\32\99\108\111\115\101\32\116\104\101\32\108\111\97\100\101\114\32\85\73\32\97\110\100\32\115\116\97\114\116\32\116\104\101\32\103\97\109\101\32\115\99\114\105\112\116\46",
-            Buttons = {
-                {
-                    Title = "\67\111\110\102\105\114\109",
-                    Callback = function()
-                        
-                        Window:Destroy()
-                        task.wait(0.2)
-                        
-                        
-                        local urls = {
-                            ["\66\108\111\120\32\70\114\117\105\116\115"] = "\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\115\97\110\106\101\101\118\116\104\97\107\117\114\49\53\52\97\45\106\112\103\47\110\101\104\104\105\110\110\106\102\105\117\101\105\111\101\114\111\107\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\98\108\111\120\102\114\117\105\116\115\46\108\117\97",
-                            ["\71\114\111\119\32\65\32\71\97\114\100\101\110\32\50"] = "\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\115\97\110\106\101\101\118\116\104\97\107\117\114\49\53\52\97\45\106\112\103\47\110\101\104\104\105\110\110\106\102\105\117\101\105\111\101\114\111\107\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\103\103\50\46\108\117\97",
-                            ["\77\105\110\105\32\87\97\114"] = "\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\115\97\110\106\101\101\118\116\104\97\107\117\114\49\53\52\97\45\106\112\103\47\110\101\104\104\105\110\110\106\102\105\117\101\105\111\101\114\111\107\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\109\105\110\105\119\97\114\46\108\117\97",
-                            ["\85\108\116\114\97\32\85\110\102\97\105\114"] = "\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\115\97\110\106\101\101\118\116\104\97\107\117\114\49\53\52\97\45\106\112\103\47\110\101\104\104\105\110\110\106\102\105\117\101\105\111\101\114\111\107\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\117\108\116\114\97\117\110\102\97\105\114\46\108\117\97"
-                        }
-                        
-                        local targetUrl = urls[selectedGame]
-                        if targetUrl then
-                            local success, err = pcall(function()
-                                loadstring(game:HttpGet(targetUrl))()
-                            end)
-                            if not success then
-                                warn("\85\110\105\118\101\114\115\97\108\32\83\117\110\32\72\117\98\58\32\70\97\105\108\101\100\32\116\111\32\101\120\101\99\117\116\101\32\115\99\114\105\112\116\32\45\32" .. tostring(err))
-                            end
-                        else
-                            warn("\85\110\105\118\101\114\115\97\108\32\83\117\110\32\72\117\98\58\32\85\110\107\110\111\119\110\32\103\97\109\101\32\99\111\110\102\105\103\117\114\97\116\105\111\110")
-                        end
-                    end
-                },
-                {
-                    Title = "\67\97\110\99\101\108",
-                    Callback = function()
-                        
-                    end
-                }
-            }
-        })
-    end
-})
